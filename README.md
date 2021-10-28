@@ -1,4 +1,4 @@
-## Another (DSSSD) Internal Gainmatcher
+## (Another) DSSSD Internal Gainmatcher
 
 Code for internal gain-matching multi segmented Si detectors. Presently tailor made for Micron MMM's having 16 rings on one side and 8 wedges on the other side, particularly for the Enge spectrograph+SABRE measurements at FSU.
 
