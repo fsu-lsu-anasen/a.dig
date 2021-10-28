@@ -1,0 +1,7 @@
+Source Dir: 
+/media/analysis/home/sudarsan/Desktop/31S/tars/analyzed
+ChannelMap: ./etc/ChannelMap_Feb2021_SABRE.txt
+DetectorID: 1
+GridPoints: 1000
+Minimum slope: 0.5
+Maximum slope: 1.5
