@@ -1,4 +1,4 @@
-**Another (DSSSD) Internal Gainmatcher 
+## Another (DSSSD) Internal Gainmatcher
 
 Code for internal gain-matching multi segmented Si detectors. Presently tailor made for Micron MMM's having 16 rings on one side and 8 wedges on the other side, particularly for the Enge spectrograph+SABRE measurements at FSU.
 
@@ -9,8 +9,8 @@ Requires output trees eventbuilt according to the FSU GWM sort code, courtesy Go
 (Ref: https://github.com/gwm17/GWM_EventBuilder)
 
 
-How to use:
------------
+#### How to use:
+
 
 Three broad parts to it, encapsulated into 2 shell scripts and an executable. The shell scripts themselves call executables which need to be compiled using 'make' from the ROOT directory.
 
@@ -25,8 +25,8 @@ This needs an eventbuilt ROOT tree. This step essentially generates all correlat
 Finally, once we generate all correlations, we use the internal gainmatcher part that reads the text outputs in steps 1 and 2 to generate a final output that can be directly used as a gainmatch file in the eventbuilder. 
 
 
-Catches:
---------
+#### Catches:
+
 
 * Requires 5 'config' files inputN.dat(N=1 to 5) that set up the directory to look for the ROOT files. Edit the directory in all 5 of these so the program looks in the right place for 'analyzed' files. 
 	
@@ -38,8 +38,8 @@ Catches:
 
 Acknowledgements are due to Gordon McCann for the GainMap and ChannelMap classes, and for the overall eventbuilder structure that this program fits within.
 
-Dependencies:
-------------- 
+#### Dependencies:
+
 *	Tested on ROOT v6.22.06 in Debian 10, Linux 4.19.0-14-amd64
 *	gcc/g++ v8.3
 *	GNU Make v4.2.1
