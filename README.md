@@ -46,9 +46,6 @@ Acknowledgements are due to Gordon McCann for design of the GainMap, ChannelMap 
 
 
 Sudarsan B
-
 LSU Baton Rouge
-
 sbalak2@lsu.edu
-
 bsudaran92@gmail.com
