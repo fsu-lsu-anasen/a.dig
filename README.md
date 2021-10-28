@@ -21,7 +21,6 @@ This needs an eventbuilt ROOT tree. This step essentially generates all correlat
 2) ./bin/calibrator <fileX.root> which reads a ROOT file saved in Compass(v1.3.0 or above) that has recorded Am-241 data on SABRE, and calculates the global scale factors in gains to the five different MMM detectors. These numbers are then saved to the file ./etc/global_gain_scalefactors.dat - this file can be adjusted by hand if necessary.
 
 3) ./IntGainMatcher.sh <run#>
-
 Finally, once we generate all correlations, we use the internal gainmatcher part that reads the text outputs in steps 1 and 2 to generate a final output that can be directly used as a gainmatch file in the eventbuilder. 
 
 
@@ -36,7 +35,7 @@ Finally, once we generate all correlations, we use the internal gainmatcher part
 	
 * Lastly, the 'fitter' treats for dead channels inside the code at src/fitter/fitter.cpp. I haven't included the dead-channel information as a separate text-file, because this stage is best done with some caution. Remember to edit this as per your needs! 
 
-Acknowledgements are due to Gordon McCann for the GainMap and ChannelMap classes, and for the overall eventbuilder structure that this program fits within.
+Acknowledgements are due to Gordon McCann for the GainMap and ChannelMap classes, and for data-structures and dictionary used in the eventbuilder that this program is intended to be used with.
 
 #### Dependencies:
 
