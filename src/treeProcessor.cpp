@@ -113,24 +113,34 @@ int treeProcessor::savePlot(double_t slope)
 	scatter->SetMarkerStyle(8);
 	mg->Add(scatter,"p");
 	//scatter->Fit(&pol1,"R");
+	//pol1->SetTitle("Robust fit with ROB=0.94");
 	scatter->Fit(pol1,"ROB=0.94");
 	
 	scatter->SetTitle("Raw data");	
 	mg->Add(scatter,"sames");
 	fit->SetLineColor(3);
-	fit->SetTitle("Cauchy-Lorentz best fit");
+	//fit->SetTitle("Cauchy-Lorentz max. lkhd");
 	mg->Add(fit,"l");
+
+
+	auto rinfo = channelMap.FindChannel(ringGchan);
+	auto winfo = channelMap.FindChannel(wedgeGchan);
 	
+	TLegend *legend = new TLegend(0.2, 0.65, 0.6,0.85);
+	legend->SetTextSize(0.04);
+	legend->SetHeader(Form("bd%d: (r%d,w%d)",detectorID, rinfo->second.detectorPart,winfo->second.detectorPart));
+	legend->AddEntry(scatter,"Raw data","p");
+	legend->AddEntry(pol1,"ROB=0.94 fit","l");
+	legend->AddEntry(fit,"Cauchy-Lorentz max. lkhd","l");
+
 	TCanvas* c = new TCanvas();
 	c->cd();
 	mg->Draw("a");
+	legend->Draw();
 	c->Modified();
 	c->Update();
-	c->BuildLegend();
 	c->SetGrid();
 	
-	auto rinfo = channelMap.FindChannel(ringGchan);
-	auto winfo = channelMap.FindChannel(wedgeGchan);
 	int temp = gErrorIgnoreLevel;	
 	gErrorIgnoreLevel = kWarning;//Suppress the annoying info message
 	c->SaveAs(Form("test_detector%d_rng%d_wdg%d.png",detectorID,rinfo->second.detectorPart,winfo->second.detectorPart));
