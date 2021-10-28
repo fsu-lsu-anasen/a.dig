@@ -35,7 +35,7 @@ Finally, once we generate all correlations, we use the internal gainmatcher part
 	
 * Lastly, the 'fitter' treats for dead channels inside the code at src/fitter/fitter.cpp. I haven't included the dead-channel information as a separate text-file, because this stage is best done with some caution. Remember to edit this as per your needs! 
 
-Acknowledgements are due to Gordon McCann for the GainMap and ChannelMap classes, and for data-structures and dictionary used in the eventbuilder that this program is intended to be used with.
+Acknowledgements are due to Gordon McCann for design of the GainMap, ChannelMap classes, data structures, and ROOT dictionary definitions borrowed for use here from the original eventbuilder code.
 
 #### Dependencies:
 
