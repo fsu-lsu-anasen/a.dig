@@ -28,6 +28,7 @@ Finally, once we generate all correlations, we use the internal gainmatcher part
 
 Catches:
 --------
+
 	* Requires 5 'config' files inputN.dat(N=1 to 5) that set up the directory to look for the ROOT files. Edit the directory in all 5 of these so the program looks in the right place for 'analyzed' files. 
 	* These config files also have particulars pertaining to the bayesian propagator, and usually don't need to be varied across different detectors. But in the future, maybe this is necessary.
 	* At the moment, there's no documentation made available for the bayesian max-likelihood propagator but the procedure is almost identical to the recommendation in the original publication. 
