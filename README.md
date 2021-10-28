@@ -12,7 +12,7 @@ Requires output trees eventbuilt according to the FSU GWM sort code, courtesy Go
 #### How to use:
 
 
-Three broad parts to it, encapsulated into 2 shell scripts and an executable. The shell scripts themselves call executables which need to be compiled using 'make' from the ROOT directory.
+Three broad parts to it, encapsulated into 2 shell scripts and an executable. The shell scripts themselves call executables which need to be compiled using 'make' from the root (top-most) directory.
 
 
 1) ./correlateAllMMMs.sh <run#> which calls ./correlateOneMMM.sh
