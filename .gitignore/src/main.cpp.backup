@@ -1,0 +1,50 @@
+#include "treeProcessor.h"
+#include "likelihoodNet.h"
+#include "progressbar2.h"
+#include <fstream>
+#include <iostream>
+R__LOAD_LIBRARY(lib/libSPSDict.so)
+
+int main(int argc, char** argv)
+{
+	if(argc < 2){
+		std::cout << "Usage: ./intGainMatcher <input_file>" << std::endl;
+		return -1;
+	}
+	std::ifstream in;
+	std::string temp,sourceDir, channelMap;
+	int runID, gridpoints;
+	double_t minS, maxS;
+	in.open(argv[1]);
+
+	while(!in.eof())
+	{
+		in>>temp>>temp>>sourceDir;
+		in>>temp>>channelMap;
+		in>>temp>>runID;
+		in>>temp>>gridpoints;
+		in>>temp>>temp>>minS;
+		in>>temp>>temp>>maxS;
+	}
+
+	likelihoodNet net1;
+	net1.initialize(gridpoints, minS, maxS, 10.0);
+
+	treeProcessor proc1;
+	proc1.initialize(sourceDir,channelMap,runID);
+	proc1.selectSABREDetector(1);
+	//proc1.selectRingWedgePair(0,2);
+	proc1.selectGChannelPair(112,42);
+
+	int nentries = proc1.getNEntries();
+	while(proc1.findNextEvent()!=-1)
+	{
+		net1.stepForward(proc1.getSabreRingE(),proc1.getSabreWedgeE());
+		progressbar2(proc1.getIterator(),nentries);
+	}
+	double maxLkhd_slope = net1.getMaxLikelihoodS();
+	std::cout << "\nMaxLkhd Slope:" << maxLkhd_slope;
+	proc1.savePlot(maxLkhd_slope);
+
+	return 0;
+}
