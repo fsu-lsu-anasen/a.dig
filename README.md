@@ -44,8 +44,11 @@ Acknowledgements are due to Gordon McCann for design of the GainMap, ChannelMap 
 *	GNU Make v4.2.1
 
 
-----
+
 Sudarsan B
+
 LSU Baton Rouge
+
 sbalak2@lsu.edu
+
 bsudaran92@gmail.com
