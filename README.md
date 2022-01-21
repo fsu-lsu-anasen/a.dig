@@ -2,8 +2,7 @@
 
 Code for internal gain-matching multi segmented Si detectors. Presently tailor made for Micron MMM's having 16 rings on one side and 8 wedges on the other side, particularly for the Enge spectrograph+SABRE measurements at FSU.
 
-Algorithm based on Reese et al (2015) at 
-https://www.sciencedirect.com/science/article/pii/S0168900208013259
+Algorithm based on Reese et al (2015) at https://www.sciencedirect.com/science/article/pii/S0168900215000637
 
 Requires output trees eventbuilt according to the FSU GWM sort code, courtesy Gordon W McCann 
 (Ref: https://github.com/gwm17/GWM_EventBuilder)
