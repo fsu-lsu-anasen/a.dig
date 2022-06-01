@@ -1,12 +1,17 @@
+/*
+ likelihoodNet.cpp
+ Class that implements a net of continuously evaluated likelihoods on a 1d grid
+*/
+
 #include "likelihoodNet.h"
 
 void likelihoodNet::initialize(int N, double_t min, double_t max, double_t w)
 {
 	numTrials=0;
 	size = N;
-	cauchyLorentzWidth = w;
-	lkGrid.resize(N);
-	std::fill(lkGrid.begin(),lkGrid.end(),1.0/N);
+	cauchyLorentzWidth = w; //Assume the chosen width
+	lkGrid.resize(N); //N elements in grid
+	std::fill(lkGrid.begin(),lkGrid.end(),1.0/N); //At the beginning, we have uniform distbn in range chosen
 	minS = min;
 	maxS = max;
 	//ofile.open("out.out");
@@ -27,6 +32,7 @@ double_t likelihoodNet::getLikelihoodAt(int i)
 
 double_t likelihoodNet::getGridXAt(int i)
 {
+	//ith position between minS and maxS divided equally in N steps
 	return minS+(maxS-minS)*(static_cast<double_t>(i)/static_cast<double_t>(size));
 }
 

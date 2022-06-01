@@ -8,6 +8,7 @@
 #include <string>
 #include "DataStructs.h"
 #include "ChannelMap.h"
+#include <TLegend.h>
 
 /*
  * Class that reads an eventbuilt tree in the context of FSU SPS+SABRE, scours it for
