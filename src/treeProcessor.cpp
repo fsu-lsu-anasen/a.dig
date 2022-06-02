@@ -78,8 +78,8 @@ int treeProcessor::findNextEvent()
 		 && pevent->sabreRingE[detectorID]>0  //Avoid pileup/saturation/error events
 		 && pevent->sabreWedgeE[detectorID]>0)
 			{
-				std::cout << "\noutputs: " << (pevent->sabreArray[detectorID].rings.size()==1 && pevent->sabreArray[detectorID].wedges.size()) << " " << iterator << " " << inTree->GetEntries() << std::endl;
-				std::cout << "mult:" << iterator << " " << pevent->sabreArray[detectorID].rings.size() << " " << pevent->sabreRingE[detectorID] << std::endl;
+				//std::cout << "\noutputs: " << (pevent->sabreArray[detectorID].rings.size()==1 && pevent->sabreArray[detectorID].wedges.size()) << " " << iterator << " " << inTree->GetEntries() << std::endl;
+				//std::cout << "mult:" << iterator << " " << pevent->sabreArray[detectorID].rings.size() << " " << pevent->sabreRingE[detectorID] << std::endl;
 				scatter->SetPoint(scatter->GetN()+1,pevent->sabreRingE[detectorID],pevent->sabreWedgeE[detectorID]);
 				iterator ++;
 				if(iterator >= nentries) return -1; //end of file
