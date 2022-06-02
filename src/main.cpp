@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 						     );
 		}
 		//uncomment if you need a progressbar
-		//if(next!=-1) progressbar2(proc1.getIterator(),nentries);		
+		if(next!=-1) progressbar2(proc1.getIterator(),nentries);		
 	}
 	double_t maxLkhd_slope = net1.getMaxLikelihoodS();
 	std::vector<double_t> results = net1.getS16_50_84();

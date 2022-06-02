@@ -101,6 +101,10 @@ int treeProcessor::findNextEvent()
 int treeProcessor::savePlot(double_t slope)
 {
 	double_t x, max, min;
+	if(scatter->GetN() < 1) {
+		std::cerr << "There's something wrong. No correlations were found for this channel pair.. Skipping plot generation/fitting.." << std::endl;
+		return -3;
+	}
 	max = TMath::MaxElement(scatter->GetN(),scatter->GetX()); //get minimum in the X array
 	min = TMath::MinElement(scatter->GetN(),scatter->GetX()); //get maximum in the X array
 	std::cout << max << " " << min << std::endl;
