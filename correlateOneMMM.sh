@@ -11,9 +11,9 @@ w=0
 runID=$1
 inputfile=$2
 
-for (( r = 0; r <= 15; r++ ))      ### Outer for loop ###
+for (( r = 0; r <= 15; r++ ))      ### Outer for loop: rings ###
 do
-    for (( w = 0 ; w <= 7; w++ )) ### Inner for loop ###
+    for (( w = 0 ; w <= 15; w++ )) ### Inner for loop: wedges ###
     do
 	  echo -ne "\rAt ring: $r and wedge $w ...            " >&2
 	  ./bin/findCorrelations $runID $inputfile $r $w

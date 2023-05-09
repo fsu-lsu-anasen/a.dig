@@ -23,10 +23,10 @@ gainmatchobj := $(patsubst %.cpp, %.o, $(gainmatchsrc))
 calibratesrc := $(shell find $(calibratesrcdir) -name "*.cpp")
 calibrateobj := $(patsubst %.cpp, %.o, $(calibratesrc))
 
-dict := $(srcdir)/sps_dict.cxx
-dict_inputs := $(incdir)/DataStructs.h $(incdir)/GainMap.h $(incdir)/ChannelMap.h $(incdir)/LinkDef_sps.h
-dictlib := $(libdir)/libSPSDict
-dictobj := $(objdir)/sps_dict.o
+dict := $(srcdir)/anasen_dict.cxx
+dict_inputs := $(incdir)/DataStructs.h $(incdir)/GainMap.h $(incdir)/ChannelMap.h $(incdir)/LinkDef_evb.h
+dictlib := $(libdir)/libEVBDict
+dictobj := $(objdir)/anasen_dict.o
 
 all: $(correlappname) $(gainmatchapp) $(calibrateapp)
 

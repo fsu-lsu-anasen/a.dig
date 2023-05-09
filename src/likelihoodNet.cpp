@@ -33,7 +33,7 @@ double_t likelihoodNet::getLikelihoodAt(int i)
 double_t likelihoodNet::getGridXAt(int i)
 {
 	//ith position between minS and maxS divided equally in N steps
-	return minS+(maxS-minS)*(static_cast<double_t>(i)/static_cast<double_t>(size));
+	return minS+(maxS-minS)*(static_cast<double_t>(i)/static_cast<double_t>(size-1));
 }
 
 void likelihoodNet::stepForward(double_t frontE, double_t backE)

@@ -11,12 +11,14 @@
 #include <TLegend.h>
 
 /*
- * Class that reads an eventbuilt tree in the context of FSU SPS+SABRE, scours it for
- * SABRE ring/wedge correlations given a ring/wedge index for a particular SABRE detector among the 5.
- * Has the additional capability to save the scatter histogram with a robust ROOT linear fit,
- * and one additional fit with a given slope.
- * 
  * Written by Sudarsan B, sbalak2@lsu.edu 
+ * Updated for ANASEN by Keilah D, kdav246@lsu.edu
+ * 
+ * Class that reads an eventbuilt tree for ANASEN, scours it for QQQ ring/wedge correlations given
+ * a ring/wedge index for a particular QQQ detector among the 4. 
+ * Has the additional capability to save the scatter histogram with a robust ROOT linear fit, 
+ * and one additional fit with a given slope.
+ *
  * */
 
 
@@ -26,7 +28,7 @@ private:
 TFile *inFile;
 TTree *inTree;
 int detectorID;
-ProcessedEvent *pevent;
+CoincEvent *pevent; //no ProcessedEvent struct for ANASEN (yet)
 
 ChannelMap channelMap;
 uint64_t nentries;
@@ -36,8 +38,8 @@ int wedgeGchan;
 TGraph *scatter, *fit;
 
 public:
-double getSabreRingE() { return pevent->sabreRingE[detectorID]; };
-double getSabreWedgeE(){ return pevent->sabreWedgeE[detectorID];};
+double getQQQRingE() { return pevent->fqqq[detectorID].rings[0].energy; }; //grabbing ring with biggest energy
+double getQQQWedgeE(){ return pevent->fqqq[detectorID].wedges[0].energy;}; //grabbing wedge with biggest energy
 uint64_t getNEntries() {return nentries;}
 uint64_t getIterator() {return iterator;}
 void resetIterator() { iterator = 0; }
@@ -45,7 +47,7 @@ void resetIterator() { iterator = 0; }
 
 
 void initialize(std::string& path, std::string &chMapFile, int runNumber);
-void selectSABREDetector(int detectorID);
+void selectQQQDetector(int detectorID);
 //Supply global channel pair
 void selectGChannelPair(int rchan, int wchan) {ringGchan = rchan; wedgeGchan=wchan;};
 //Supply RingWedge pair

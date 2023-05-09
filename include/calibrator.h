@@ -18,7 +18,7 @@ class calibrator{
 	public:
 	calibrator();
 	~calibrator();
-	void calibrate_sabre(std::string);
+	void calibrate_qqq(std::string);
 	void MyFill(THashTable *table, std::string name, int binsx, double minx, double maxx, double valuex, int binsy, double miny, double maxy, double valuey);
 	void MyFill(THashTable *table, std::string name, int bins, double min, double max, double value);
 	

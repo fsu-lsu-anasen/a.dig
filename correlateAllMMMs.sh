@@ -8,7 +8,7 @@ fi
 runID=$1
 echo $runID
 mkdir ./run$runID
-for (( b = 0 ; b <= 4; b++ )) ### Inner for loop ###
+for (( b = 0 ; b <= 3; b++ )) ### Inner for loop ###
 do
      echo At board $b ...
     ./correlateOneMMM.sh $runID input$b.dat > outlist.$b

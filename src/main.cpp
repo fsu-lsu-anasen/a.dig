@@ -3,7 +3,7 @@
 #include "progressbar2.h"
 #include <fstream>
 #include <iostream>
-R__LOAD_LIBRARY(lib/libSPSDict.so)
+R__LOAD_LIBRARY(lib/libEVBDict.so)
 
 int main(int argc, char** argv)
 {
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
 	treeProcessor proc1;
 	proc1.initialize(sourceDir,channelMap,runID);
-	proc1.selectSABREDetector(detectorID);
+	proc1.selectQQQDetector(detectorID);
 		
 	proc1.selectRingWedgePair(r,w);
 	//proc1.selectGChannelPair(112,42);
@@ -51,8 +51,8 @@ int main(int argc, char** argv)
 	while(next!=-1){
 		next = proc1.findNextEvent();
 		if(next == 0) {
-			net1.stepForward(static_cast<double_t>(proc1.getSabreRingE()),
-						     static_cast<double_t>(proc1.getSabreWedgeE())
+			net1.stepForward(static_cast<double_t>(proc1.getQQQRingE()),
+						     static_cast<double_t>(proc1.getQQQWedgeE())
 						     );
 		}
 		//uncomment if you need a progressbar

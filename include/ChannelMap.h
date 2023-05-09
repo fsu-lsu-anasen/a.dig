@@ -1,63 +1,111 @@
-/*
-	ChannelMap.h
-	Class which acts as the go between for global compass channels (board#*16 + channel) and
-	physical detector information. Used in the event builder to assign compass data to real values
-	in a simple way. Takes in a definition file and parses it into an unordered_map container.
-
-	Written by G.W. McCann Oct. 2020
-*/
 #include "EventBuilder.h"
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
 
-#ifndef CHANNELMAP_H
-#define CHANNELMAP_H
+#ifndef CHANNEL_MAP_H
+#define CHANNEL_MAP_H
 
-struct Channel {
-	int detectorType; //What kind of detector we're looking at
-	int detectorID; //Which specific detector we're looking at
-	int detectorPart; //Which specific part we're looking at
+
+enum DetType
+{
+	FQQQ0Ring,
+	FQQQ0Wedge,
+	FQQQ1Ring,
+	FQQQ1Wedge,
+	FQQQ2Ring,
+	FQQQ2Wedge,
+	FQQQ3Ring,
+	FQQQ3Wedge,
+	Barrel0FrontUp,
+	Barrel0FrontDn,
+	Barrel0Back,  
+	Barrel1FrontUp,
+	Barrel1FrontDn,
+	Barrel1Back,  
+	Barrel2FrontUp,
+	Barrel2FrontDn,
+	Barrel2Back,  
+	Barrel3FrontUp,
+	Barrel3FrontDn,
+	Barrel3Back,  
+	Barrel4FrontUp,
+	Barrel4FrontDn,
+	Barrel4Back,  
+	Barrel5FrontUp,
+	Barrel5FrontDn,
+	Barrel5Back,  
+	Barrel6FrontUp,
+	Barrel6FrontDn,
+	Barrel6Back,  
+	Barrel7FrontUp,
+	Barrel7FrontDn,
+	Barrel7Back,  
+	Barrel8FrontUp,
+	Barrel8FrontDn,
+	Barrel8Back,  
+	Barrel9FrontUp,
+	Barrel9FrontDn,
+	Barrel9Back,  
+	Barrel10FrontUp,
+	Barrel10FrontDn,
+	Barrel10Back,  
+	Barrel11FrontUp,
+	Barrel11FrontDn,
+	Barrel11Back,  
+	BarcUpstream0Front,
+	BarcUpstream0Back,
+	BarcUpstream1Front,
+	BarcUpstream1Back,
+	BarcUpstream2Front,
+	BarcUpstream2Back,
+	BarcUpstream3Front,
+	BarcUpstream3Back,
+	BarcUpstream4Front,
+	BarcUpstream4Back,
+	BarcUpstream5Front,
+	BarcUpstream5Back,
+	BarcDownstream0Front,
+	BarcDownstream0Back,
+	BarcDownstream1Front,
+	BarcDownstream1Back,
+	BarcDownstream2Front,
+	BarcDownstream2Back,
+	BarcDownstream3Front,
+	BarcDownstream3Back,
+	BarcDownstream4Front,
+	BarcDownstream4Back,
+	BarcDownstream5Front,
+	BarcDownstream5Back,
+	None
 };
 
-//Detector part/type identifiers for use in the code
-enum DetAttribute {
-	FOCALPLANE,
-	SCINTLEFT,
-	SCINTRIGHT,
-	ANODEFRONT,
-	ANODEBACK,
-	DELAYFR,
-	DELAYFL,
-	DELAYBR,
-	DELAYBL,
-	CATHODE,
-	MONITOR,
-	SABRERING = 88, //These are offset to avoid interference at the variable mapping phase
-	SABREWEDGE = 99 //Just don't add any new attributes with values greater than 88
+
+struct Channel
+{
+	DetType type;
+	int local_channel;
 };
 
-
-class ChannelMap {
-	
+class ChannelMap
+{
 public:
-	typedef std::unordered_map<int, Channel> Containter;
-	typedef std::unordered_map<int, Channel>::iterator Iterator;
+	using Container = std::unordered_map<int, Channel>;
+	using Iterator = std::unordered_map<int, Channel>::iterator;
 
 	ChannelMap();
 	ChannelMap(const std::string& filename);
-//	ChannelMap(const char* filename);
 	~ChannelMap();
+
 	bool FillMap(const std::string& filename);
-	inline const Containter* GetCMap() { return &cmap; };
-	inline Iterator FindChannel(int key) { return cmap.find(key); };
-	inline Iterator End() { return cmap.end(); };
-	inline Iterator Begin() { return cmap.begin(); };
-	inline bool IsValid() { return is_valid; };
+	inline Iterator FindChannel(int key) { return m_cmap.find(key); }
+	inline Iterator Begin() { return m_cmap.begin(); }
+	inline Iterator End() { return m_cmap.end(); }
+        inline bool IsValid() { return m_isValid; }	
 
 private:
-	Containter cmap;
-	bool is_valid;
+	Container m_cmap;
+	bool m_isValid;
 };
 
 

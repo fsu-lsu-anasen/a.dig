@@ -5,7 +5,8 @@
  * Has the additional capability to save the scatter histogram with a robust ROOT linear fit,
  * and one additional fit with a given slope.
  * 
- * Written by Sudarsan B, sbalak2@lsu.edu 
+ * Written for FSU SPS+SABRE by Sudarsan B, sbalak2@lsu.edu 
+ * Updated for ANASEN by Keilah D, kdav246@lsu.edu
  * */
 
 
@@ -15,17 +16,17 @@
 void treeProcessor::initialize(std::string& rootpath, std::string &chMapFile, int runNumber)
 {
 	channelMap.FillMap(chMapFile);
-	pevent = new ProcessedEvent;
+	pevent = new CoincEvent;
 	inFile = new TFile(Form("%s/run_%d.root",rootpath.c_str(),runNumber));
 	if(!inFile) { std::cout << "No ROOT file found!"; return; }
-	inTree = static_cast<TTree*>(inFile->Get("SPSTree"));
+	inTree = static_cast<TTree*>(inFile->Get("SortTree"));
 	if(!inTree) { std::cout << "No TTree found in file!"; return; }
 	inTree->SetBranchAddress("event",&pevent);
 
 	scatter = new TGraph(); // TGraph that stores the scatter
 	fit = new TGraph(); // TGraph that will store the externally provided slope's fit
 	
-	selectSABREDetector(0);
+	selectQQQDetector(0);
 	nentries = inTree->GetEntries();
 	iterator = 0;
 	//inTree->SetMaxVirtualSize(4000000000LL);
@@ -33,7 +34,7 @@ void treeProcessor::initialize(std::string& rootpath, std::string &chMapFile, in
 
 }
 
-void treeProcessor::selectSABREDetector(int ID)
+void treeProcessor::selectQQQDetector(int ID)
 {
 	detectorID=ID;
 }
@@ -46,18 +47,22 @@ treeProcessor::~treeProcessor()
 /*Self explanatory, scours the channelmap to find the channelnumber*/
 void treeProcessor::selectRingWedgePair(int ringchan, int wedgechan)
 {
+	DetType typeRing[4] = {FQQQ0Ring,FQQQ1Ring,FQQQ2Ring,FQQQ3Ring};
+	DetType typeWedge[4] = {FQQQ0Wedge,FQQQ1Wedge,FQQQ2Wedge,FQQQ3Wedge};
 	int i=0;
 	int found2=0;
 	for(auto iter = channelMap.Begin(); iter != channelMap.End(); iter++, i++)
 	{
 		auto chaninfo = channelMap.FindChannel(i);
-		if(chaninfo->second.detectorType==SABREWEDGE && chaninfo->second.detectorPart==wedgechan && chaninfo->second.detectorID==detectorID){ 
+		if(chaninfo->second.type==typeWedge[detectorID] && chaninfo->second.local_channel==wedgechan)
+		{ 
 			wedgeGchan=i;
 			found2++;
 		}
-		if(chaninfo->second.detectorType==SABRERING && chaninfo->second.detectorPart==ringchan&& chaninfo->second.detectorID==detectorID){
-			 ringGchan=i;
-			 found2++;
+		if(chaninfo->second.type==typeRing[detectorID] && chaninfo->second.local_channel==ringchan)
+		{
+			ringGchan=i;
+			found2++;
 		}
 		if(found2==2) break; //save some time
 	}
@@ -69,18 +74,19 @@ int treeProcessor::findNextEvent()
 	//while(iterator < nentries)
 	{
 		inTree->GetEntry(iterator);
-		if(pevent->sabreRingChannel[detectorID]==ringGchan 
-		 && pevent->sabreWedgeChannel[detectorID]==wedgeGchan
-		 &&	pevent->sabreArray[detectorID].rings.size()==1  //Multiplicity must be 1 to be safe
-		 && pevent->sabreArray[detectorID].wedges.size()==1
-//		 &&	pevent->sabreRingMultiplicity[detectorID]==1  //Multiplicity must be 1 to be safe
-//		 && pevent->sabreWedgeMultiplicity[detectorID]==1
-		 && pevent->sabreRingE[detectorID]>0  //Avoid pileup/saturation/error events
-		 && pevent->sabreWedgeE[detectorID]>0)
+		//ANASEN EventBuilder sorts by energy (i.e. first entry in rings vector is the largest energy ring hit)
+		//must check multiplicity first to avoid indexing empty array
+		if(pevent->fqqq[detectorID].rings.size()==1  //Multiplicity must be 1 to be safe
+		 && pevent->fqqq[detectorID].wedges.size()==1
+		 && pevent->fqqq[detectorID].rings[0].globalChannel==ringGchan //global channel
+		 && pevent->fqqq[detectorID].wedges[0].globalChannel==wedgeGchan
+		 && pevent->fqqq[detectorID].rings[0].energy>0  //Avoid pileup/saturation/error events
+		 && pevent->fqqq[detectorID].wedges[0].energy>0)
 			{
-				//std::cout << "\noutputs: " << (pevent->sabreArray[detectorID].rings.size()==1 && pevent->sabreArray[detectorID].wedges.size()) << " " << iterator << " " << inTree->GetEntries() << std::endl;
+ 				//std::cout << "\noutputs: " << (pevent->sabreArray[detectorID].rings.size()==1 && pevent->sabreArray[detectorID].wedges.size()) << " " << iterator << " " << inTree->GetEntries() << std::endl;
 				//std::cout << "mult:" << iterator << " " << pevent->sabreArray[detectorID].rings.size() << " " << pevent->sabreRingE[detectorID] << std::endl;
-				scatter->SetPoint(scatter->GetN()+1,pevent->sabreRingE[detectorID],pevent->sabreWedgeE[detectorID]);
+				//GetN()+1 skips index, creates a lot of points at (0,0); removed +1
+				scatter->SetPoint(scatter->GetN(),pevent->fqqq[detectorID].rings[0].energy,pevent->fqqq[detectorID].wedges[0].energy);
 				iterator ++;
 				if(iterator >= nentries) return -1; //end of file
 				return 0;
@@ -137,7 +143,7 @@ int treeProcessor::savePlot(double_t slope)
 	
 	TLegend *legend = new TLegend(0.2, 0.65, 0.6,0.85);
 	legend->SetTextSize(0.04);
-	legend->SetHeader(Form("bd%d: (r%d,w%d)",detectorID, rinfo->second.detectorPart,winfo->second.detectorPart));
+	legend->SetHeader(Form("bd%d: (r%d,w%d)",detectorID, rinfo->second.local_channel,winfo->second.local_channel));
 	legend->AddEntry(scatter,"Raw data","p");
 	legend->AddEntry(pol1,"ROB=0.94 fit","l");
 	legend->AddEntry(fit,"Cauchy-Lorentz max. lkhd","l");
@@ -152,7 +158,7 @@ int treeProcessor::savePlot(double_t slope)
 	
 	int temp = gErrorIgnoreLevel;	
 	gErrorIgnoreLevel = kWarning;//Suppress the annoying info message
-	c->SaveAs(Form("test_detector%d_rng%d_wdg%d.png",detectorID,rinfo->second.detectorPart,winfo->second.detectorPart));
+	c->SaveAs(Form("test_detector%d_rng%d_wdg%d.png",detectorID,rinfo->second.local_channel,winfo->second.local_channel));
 	gErrorIgnoreLevel = temp; //no delete necessary to pol1, c, and mg because ROOT automatically deletes them
 	// if put in, leads to a persistent warning.
 	return 0;

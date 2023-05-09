@@ -30,7 +30,7 @@ valuey) {
   }
 }
 
-void calibrator::calibrate_sabre(std::string filename) {
+void calibrator::calibrate_qqq(std::string filename) {
 
 
   TFile *input = new TFile(filename.c_str(), "READ");
@@ -38,9 +38,9 @@ void calibrator::calibrate_sabre(std::string filename) {
 	 std::cout << "Error! Couldn't find file at " << filename << " ... check it exists." << std::endl;
 	 return;
   }
-  TTree *intree = (TTree*) input->Get("Data");
+  TTree *intree = (TTree*) input->Get("SortTree");
   if(!intree){
-	 std::cout << "Error! Couldn't find tree 'Data' in specified root file" << std::endl;
+	 std::cout << "Error! Couldn't find tree 'SortTree' in specified root file" << std::endl;
 	 return;
   }
   ULong64_t ts;
@@ -59,7 +59,6 @@ void calibrator::calibrate_sabre(std::string filename) {
   TH1D *h2 = new TH1D("h2","h2",1024,0,8192);
   TH1D *h3 = new TH1D("h3","h3",1024,0,8192);
   TH1D *h4 = new TH1D("h4","h4",1024,0,8192);
-  TH1D *h5 = new TH1D("h5","h5",1024,0,8192);
   
   //THashTable *hash = new THashTable();
 
@@ -71,12 +70,12 @@ void calibrator::calibrate_sabre(std::string filename) {
 	gchan = c + b*16;
     //auto chanGain = gMap.FindParameters(gchan);
     
+    //selects the 4 rings (one per detector) with the least amount of straggling for a centered source
     if(e>100){
     if(b==3 && c==15) h1->Fill(e);
     if(b==4 && c==0) h2->Fill(e);
     if(b==5 && c==0) h3->Fill(e);
     if(b==6 && c==0) h4->Fill(e);
-    if(b==7 && c==0) h5->Fill(e);
 	}
     //auto chanConfig = ;
     //if(cMap.FindChannel(gchan)->second.detectorType==SABRERING && cMap.FindChannel(gchan)->second.detectorID==0) {
@@ -91,22 +90,21 @@ void calibrator::calibrate_sabre(std::string filename) {
   h2->Write();
   h3->Write();
   h4->Write();
-  h5->Write();
 
-  std::cout << " Global scale factors needed to align 5.486MeV peak:" << std::endl;
+  //scale those 4 rings to an alpha peak so 1 keV = 1 channel
+  //TODO: look into ROOT fitting functions (gaussian, exp. modified gaus, or crystal ball?)
+  std::cout << " Global scale factors needed to align 5.486MeV peak:" << std::endl; //TODO: probably wrong peak
   std::cout << "----------------------------------------" << std::endl;
-  std::cout << " 4." << 5486./h1->GetXaxis()->GetBinCenter(h1->GetMaximumBin()) << std::endl;
-  std::cout << " 3." << 5486./h2->GetXaxis()->GetBinCenter(h2->GetMaximumBin()) << std::endl;
-  std::cout << " 2." << 5486./h3->GetXaxis()->GetBinCenter(h3->GetMaximumBin()) << std::endl;
-  std::cout << " 1." << 5486./h4->GetXaxis()->GetBinCenter(h4->GetMaximumBin()) << std::endl;
-  std::cout << " 0." << 5486./h5->GetXaxis()->GetBinCenter(h5->GetMaximumBin()) << std::endl;
+  std::cout << " 3." << 5486./h1->GetXaxis()->GetBinCenter(h1->GetMaximumBin()) << std::endl;
+  std::cout << " 2." << 5486./h2->GetXaxis()->GetBinCenter(h2->GetMaximumBin()) << std::endl;
+  std::cout << " 1." << 5486./h3->GetXaxis()->GetBinCenter(h3->GetMaximumBin()) << std::endl;
+  std::cout << " 0." << 5486./h4->GetXaxis()->GetBinCenter(h4->GetMaximumBin()) << std::endl;
 
   std::ofstream ofile("./etc/global_gain_scalefactors.dat");
-  ofile << " 4\t" << 5486./h1->GetXaxis()->GetBinCenter(h1->GetMaximumBin()) << std::endl;
-  ofile << " 3\t" << 5486./h2->GetXaxis()->GetBinCenter(h2->GetMaximumBin()) << std::endl;
-  ofile << " 2\t" << 5486./h3->GetXaxis()->GetBinCenter(h3->GetMaximumBin()) << std::endl;
-  ofile << " 1\t" << 5486./h4->GetXaxis()->GetBinCenter(h4->GetMaximumBin()) << std::endl;
-  ofile << " 0\t" << 5486./h5->GetXaxis()->GetBinCenter(h5->GetMaximumBin()) << std::endl;
+  ofile << " 3\t" << 5486./h1->GetXaxis()->GetBinCenter(h1->GetMaximumBin()) << std::endl;
+  ofile << " 2\t" << 5486./h2->GetXaxis()->GetBinCenter(h2->GetMaximumBin()) << std::endl;
+  ofile << " 1\t" << 5486./h3->GetXaxis()->GetBinCenter(h3->GetMaximumBin()) << std::endl;
+  ofile << " 0\t" << 5486./h4->GetXaxis()->GetBinCenter(h4->GetMaximumBin()) << std::endl;
   ofile.close();
   output->Close();
 }
@@ -116,12 +114,12 @@ void calibrator::calibrate_sabre(std::string filename) {
 int main(int argc, char** argv)
 {
 if(argc < 2){
-std::cout << " Usage: ./calibrator <raw compass rootfile with Am241 spectrum>" << std::endl;
+std::cout << " Usage: ./calibrator <raw compass rootfile with Am241 spectrum>" << std::endl; //TODO: probably wrong spectrum
 return -1;
 }
 
 std::string filename(argv[1]);
 calibrator c;
-c.calibrate_sabre(filename);
+c.calibrate_qqq(filename);
 return 0 ;
 }
