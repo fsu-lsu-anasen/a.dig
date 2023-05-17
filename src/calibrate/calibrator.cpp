@@ -30,6 +30,39 @@ valuey) {
   }
 }
 
+//sorts peak positions from lowest to highest
+bool SortPosition(const double i, const double j)
+{
+  return i<j;
+}
+
+std::vector<double> calibrator::GetPeaks(TH1D *hist)
+{
+  double xmax = hist->GetMaximum();
+  int binmax = hist->GetNbinsX();
+  int bintemp;
+  xVec.clear(); //so we can reuse
+  //threshold set high enough so only center bins of 2 highest peaks get found
+  while(hist->FindLastBinAbove(xmax*0.9,1,1,binmax)>-1) //FindLastBinAbove(threshold,1,firstBin,lastBin) returns -1 if none found
+  {
+    //grab that bin
+    bintemp = hist->FindLastBinAbove(xmax*0.9,1,1,binmax);
+    //push the bin center to vector of x values
+    xVec.push_back(hist->GetXaxis()->GetBinCenter(bintemp));
+    //reset binmax
+    binmax = bintemp-1;
+  }
+  std::sort(xVec.begin(), xVec.end(), SortPosition); //sort lowest to highest
+  return xVec;
+}
+
+//TODO: look into ROOT fitting functions (gaussian, exp. modified gaus, or crystal ball?)
+//TODO: spot check --> pick a few channels to fit (i.e. gaussian) and compare to what I get with above method
+//TODO: could also do the calibration and look for ones to fix individually by hand
+void calibrator::FitPeaks(){
+  //do stuff
+}
+
 void calibrator::calibrate_qqq(std::string filename) {
 
 
@@ -38,12 +71,12 @@ void calibrator::calibrate_qqq(std::string filename) {
 	 std::cout << "Error! Couldn't find file at " << filename << " ... check it exists." << std::endl;
 	 return;
   }
-  TTree *intree = (TTree*) input->Get("SortTree");
+  TTree *intree = (TTree*) input->Get("Data");
   if(!intree){
-	 std::cout << "Error! Couldn't find tree 'SortTree' in specified root file" << std::endl;
+	 std::cout << "Error! Couldn't find tree 'Data' in specified root file" << std::endl;
 	 return;
   }
-  ULong64_t ts;
+  ULong_t ts;
   UShort_t e, c, b, es;
   UInt_t f;
   intree->SetBranchAddress("Timestamp", &ts); 
@@ -55,10 +88,10 @@ void calibrator::calibrate_qqq(std::string filename) {
 //  intree->SetMaxVirtualSize(4000000000);
 
   TFile *output = TFile::Open("./singles_run_1.root","RECREATE");
-  TH1D *h1 = new TH1D("h1","h1",1024,0,8192);
-  TH1D *h2 = new TH1D("h2","h2",1024,0,8192);
-  TH1D *h3 = new TH1D("h3","h3",1024,0,8192);
-  TH1D *h4 = new TH1D("h4","h4",1024,0,8192);
+  TH1D *h1 = new TH1D("h1","h1",1024,0,4096);
+  TH1D *h2 = new TH1D("h2","h2",1024,0,4096);
+  TH1D *h3 = new TH1D("h3","h3",1024,0,4096);
+  TH1D *h4 = new TH1D("h4","h4",1024,0,4096);
   
   //THashTable *hash = new THashTable();
 
@@ -70,12 +103,12 @@ void calibrator::calibrate_qqq(std::string filename) {
 	gchan = c + b*16;
     //auto chanGain = gMap.FindParameters(gchan);
     
-    //selects the 4 rings (one per detector) with the least amount of straggling for a centered source
-    if(e>100){
-    if(b==3 && c==15) h1->Fill(e);
-    if(b==4 && c==0) h2->Fill(e);
-    if(b==5 && c==0) h3->Fill(e);
-    if(b==6 && c==0) h4->Fill(e);
+    //UPDATE WITH EACH EXPERIMENT: select the 4 rings (one per detector) with the least amount of straggling for a centered source
+    if(e>100){ //threshold cuts out noise
+    if(b==0 && c==10) h1->Fill(e);
+    if(b==0 && c==26) h2->Fill(e);
+    if(b==5 && c==10) h3->Fill(e);
+    if(b==5 && c==26) h4->Fill(e);
 	}
     //auto chanConfig = ;
     //if(cMap.FindChannel(gchan)->second.detectorType==SABRERING && cMap.FindChannel(gchan)->second.detectorID==0) {
@@ -85,28 +118,36 @@ void calibrator::calibrate_qqq(std::string filename) {
   }
   std::cout << std::endl;
 
+  //get alpha peak positions from histograms
+  std::vector<double> x1 = GetPeaks(h1);
+  std::vector<double> x2 = GetPeaks(h2);
+  std::vector<double> x3 = GetPeaks(h3);
+  std::vector<double> x4 = GetPeaks(h4);
+
   input->Close();
+  output->cd();
   h1->Write();
   h2->Write();
   h3->Write();
   h4->Write();
+  output->Close();
 
   //scale those 4 rings to an alpha peak so 1 keV = 1 channel
-  //TODO: look into ROOT fitting functions (gaussian, exp. modified gaus, or crystal ball?)
-  std::cout << " Global scale factors needed to align 5.486MeV peak:" << std::endl; //TODO: probably wrong peak
+  //with triple alpha source, the 2nd peak (i.e. x1[1]) is Am-241
+  //TODO: start with only fitting one peak from triple alpha spectrum and see how it goes
+  std::cout << " Global scale factors needed to align Am-241 5.486MeV peak:" << std::endl;
   std::cout << "----------------------------------------" << std::endl;
-  std::cout << " 3." << 5486./h1->GetXaxis()->GetBinCenter(h1->GetMaximumBin()) << std::endl;
-  std::cout << " 2." << 5486./h2->GetXaxis()->GetBinCenter(h2->GetMaximumBin()) << std::endl;
-  std::cout << " 1." << 5486./h3->GetXaxis()->GetBinCenter(h3->GetMaximumBin()) << std::endl;
-  std::cout << " 0." << 5486./h4->GetXaxis()->GetBinCenter(h4->GetMaximumBin()) << std::endl;
+  std::cout << " 3." << " 5486./" << x1[1] << std::endl;
+  std::cout << " 2." << " 5486./" << x2[1] << std::endl;
+  std::cout << " 1." << " 5486./" << x3[1] << std::endl;
+  std::cout << " 0." << " 5486./" << x4[1] << std::endl;
 
   std::ofstream ofile("./etc/global_gain_scalefactors.dat");
-  ofile << " 3\t" << 5486./h1->GetXaxis()->GetBinCenter(h1->GetMaximumBin()) << std::endl;
-  ofile << " 2\t" << 5486./h2->GetXaxis()->GetBinCenter(h2->GetMaximumBin()) << std::endl;
-  ofile << " 1\t" << 5486./h3->GetXaxis()->GetBinCenter(h3->GetMaximumBin()) << std::endl;
-  ofile << " 0\t" << 5486./h4->GetXaxis()->GetBinCenter(h4->GetMaximumBin()) << std::endl;
+  ofile << " 3\t" << 5486./x1[1] << std::endl;
+  ofile << " 2\t" << 5486./x2[1] << std::endl;
+  ofile << " 1\t" << 5486./x3[1] << std::endl;
+  ofile << " 0\t" << 5486./x4[1] << std::endl;
   ofile.close();
-  output->Close();
 }
 
 
@@ -114,7 +155,7 @@ void calibrator::calibrate_qqq(std::string filename) {
 int main(int argc, char** argv)
 {
 if(argc < 2){
-std::cout << " Usage: ./calibrator <raw compass rootfile with Am241 spectrum>" << std::endl; //TODO: probably wrong spectrum
+std::cout << " Usage: ./bin/calibrator <raw compass rootfile with alpha spectrum>" << std::endl;
 return -1;
 }
 
